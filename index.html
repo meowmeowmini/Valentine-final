@@ -6,26 +6,21 @@
   <title>Will you be my Valentine?</title>
   <style>
     :root{
-      --card-bg: rgba(255,255,255,0.95);
-      --accent: #ff6fa3;
-      --accent-2: #ffb3c6;
-      --muted: #8b6b7b;
-      --shadow: 0 14px 50px rgba(215,80,140,0.12);
-      --radius: 18px;
-      --heart-size: 56px;
-      --panel-width: 340px;
+      --accent:#ff6fa3;
+      --accent-2:#ffb3c6;
+      --muted:#8b6a80;
+      --radius-large: min(46vw,46vh);
+      --no-size: 96px;
+      --orbit-speed: 12s; /* lower = faster */
     }
 
     html,body{
       height:100%;
       margin:0;
-      font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      background: linear-gradient(135deg,#fff1f4 0%, #ffeef6 30%, #fff3ea 100%);
-      color:#5a3744;
-      overflow-x:hidden;
+      font-family:Inter, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
       -webkit-text-size-adjust:100%;
+      background: linear-gradient(135deg,#fff1f4 0%, #ffeef6 30%, #fff3ea 100%);
+      color:#553a47;
     }
 
     .wrap{
@@ -40,212 +35,183 @@
     .card{
       width:100%;
       max-width:980px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,250,251,0.98));
-      border-radius:var(--radius);
-      box-shadow: var(--shadow);
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), #fff7fb);
+      border-radius:14px;
+      box-shadow: 0 18px 60px rgba(215,80,140,0.10);
       padding:14px;
-      text-align:center;
-      position:relative;
-      overflow:visible;
       display:grid;
       grid-template-columns: 1fr 360px;
       gap:18px;
     }
 
-    /* Make the photo area large and very visible.
-       Uses a responsive height and a "view full" modal so the whole image can be shown without cropping. */
+    /* BIG PHOTO AREA */
     .photo{
-      width:100%;
-      height:min(72vh, 780px); /* VERY large hero area */
-      background:linear-gradient(90deg, rgba(255,230,240,0.6), rgba(255,245,247,0.6));
+      height:min(72vh, 820px);
       border-radius:12px;
       overflow:hidden;
       display:flex;
       align-items:center;
       justify-content:center;
+      background:linear-gradient(90deg, rgba(255,230,240,0.6), rgba(255,245,247,0.6));
       position:relative;
-      box-shadow:0 12px 40px rgba(200,80,130,0.06);
     }
     .photo img{
       width:100%;
       height:100%;
-      object-fit:cover; /* fills the area pleasantly */
+      object-fit:cover;
       display:block;
       transition: transform .45s ease;
-      will-change: transform;
     }
-    /* If the user wants to view the full, uncropped image we open a modal with contain */
-    .photo .view-full{
+    .view-full{
       position:absolute;
       right:12px;
       bottom:12px;
-      background:rgba(255,255,255,0.92);
+      background:rgba(255,255,255,0.95);
       color:#b24a77;
       padding:8px 10px;
       border-radius:10px;
       font-weight:700;
-      border:1px solid rgba(178,74,119,0.08);
       cursor:pointer;
+      border:1px solid rgba(178,74,119,0.08);
       box-shadow:0 8px 30px rgba(200,60,110,0.06);
-      z-index:6;
     }
 
-    /* Right column content (controls, text) */
-    .side {
-      display:flex;
-      flex-direction:column;
-      align-items:stretch;
-      gap:12px;
-      padding:6px 6px;
-    }
+    /* SIDE PANEL */
+    .side{ display:flex; flex-direction:column; gap:12px; padding:6px 6px; }
+    h1{ margin:0; font-size:20px; color:#b03a6b; text-align:left; }
+    .lead{ margin:0; font-weight:700; color:#6f3f56; text-align:left; }
 
-    h1{ font-size:22px; margin:0; color:#b03a6b; text-align:left; }
-    p.lead{ margin:2px 0 10px; font-size:18px; color:#6f3f56; font-weight:700; text-align:left; }
-
-    .countdown{
-      display:flex;
-      gap:8px;
-      justify-content:flex-start;
-      margin-bottom:6px;
-      flex-wrap:wrap;
-    }
-    .time-box{
-      background:linear-gradient(180deg,#fff,#fff0);
-      padding:8px 12px;
-      border-radius:12px;
-      min-width:72px;
-      box-shadow:0 6px 18px rgba(200,80,120,0.06);
-      text-align:center;
-    }
+    .countdown{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+    .time-box{ background:linear-gradient(180deg,#fff,#fff0); padding:8px 12px; border-radius:10px; min-width:68px; text-align:center; box-shadow:0 6px 18px rgba(200,80,120,0.06); }
     .time-box .num{ font-weight:800; color:#b93b70; font-size:18px; }
     .time-box .label{ font-size:11px; color:#9a6a80; }
 
-    .actions{ margin-top:8px; display:flex; gap:12px; justify-content:flex-start; align-items:center; position:relative; height:64px; }
-    .btn{ border:0; padding:12px 18px; border-radius:999px; font-size:16px; cursor:pointer; box-shadow:0 8px 18px rgba(200,80,120,0.08); display:inline-flex; align-items:center; gap:8px; user-select:none; touch-action:manipulation; }
-    .btn-yes{ background: linear-gradient(90deg,var(--accent),var(--accent-2)); color:white; }
-    .btn-no{
-      position:absolute; background:#fff7fb; color:#b44a78; border:1px solid rgba(180,74,120,0.08); min-width:120px; z-index:5;
-      animation: wobble 3s linear infinite; will-change: transform, left, top; pointer-events:auto;
-    }
-    @keyframes wobble{ 0%{ transform: translate(0,0) } 25%{ transform: translate(6px,-3px) } 50%{ transform: translate(-4px,4px) } 75%{ transform: translate(6px,2px) } 100%{ transform: translate(0,0) } }
+    .actions{ position:relative; height:72px; display:flex; align-items:center; gap:12px; margin-top:6px; }
+    .btn{ border:0; padding:12px 18px; border-radius:999px; cursor:pointer; font-weight:800; font-size:16px; box-shadow:0 8px 18px rgba(200,80,120,0.08); background:#fff; color:#b24a77; }
+    .btn-yes{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#fff; }
 
-    .secret{
-      margin-top:8px;
-      padding:12px;
-      border-radius:12px;
-      background:linear-gradient(180deg,#fff7fb,#fff3f7);
-      display:none;
-      box-shadow:0 10px 28px rgba(150,60,100,0.04);
-      text-align:left;
-    }
+    .secret{ display:none; padding:12px; border-radius:12px; background:linear-gradient(180deg,#fff7fb,#fff3f7); box-shadow:0 10px 28px rgba(150,60,100,0.04); text-align:left; }
     .secret h2{ margin:0 0 8px; color:#a03364; font-size:17px; }
-    .secret p{ margin:0 0 6px; color:#6f4456; line-height:1.5; font-size:15px; white-space:pre-line; }
+    .secret p{ margin:0; color:#6f4456; line-height:1.5; white-space:pre-line; }
 
-    .celebrate-text{
-      display:none;
-      margin-top:12px;
-      font-size:20px;
-      color:#d43b74;
-      font-weight:900;
-      letter-spacing:1px;
-      text-align:center;
-      animation: pop 700ms ease both;
+    .celebrate-text{ display:none; margin-top:12px; text-align:center; font-weight:900; color:#d43b74; font-size:20px; animation:pop .7s both; }
+    @keyframes pop{ 0%{ transform:scale(.95); opacity:0 } 60%{ transform:scale(1.06); opacity:1 } 100%{ transform:scale(1); opacity:1 } }
+
+    .hearts-layer{ position:fixed; inset:0; pointer-events:none; z-index:12000; }
+
+    .footer{ margin-top:8px; font-size:13px; color:var(--muted); text-align:left; }
+
+    /* TAP OVERLAY (for iPhone audio unlocking) */
+    .tap-overlay{
+      position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:20000;
+      background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,250,251,0.9));
+      flex-direction:column; gap:12px; padding:18px; box-sizing:border-box;
     }
-    @keyframes pop{ 0%{ transform: scale(.94); opacity:0 } 60%{ transform: scale(1.06); opacity:1 } 100%{ transform: scale(1); opacity:1 } }
+    .tap-btn{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#fff; padding:14px 22px; border-radius:12px; font-weight:900; font-size:16px; box-shadow:0 10px 30px rgba(255,120,160,0.12); }
+    .tap-hint{ color:var(--muted); font-size:13px; text-align:center; max-width:420px; }
 
-    .hearts-layer{ position:fixed; left:0; right:0; top:0; bottom:0; pointer-events:none; overflow:visible; z-index:9999; }
+    /* FULLSCREEN MODAL */
+    .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(20,10,20,0.6); z-index:20001; padding:18px; box-sizing:border-box; }
+    .imgwrap{ width:100%; max-width:1100px; max-height:92vh; background:#fff; border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+    .imgwrap img{ width:100%; height:100%; object-fit:contain; display:block; }
+    .close{ position:absolute; right:18px; top:18px; background:rgba(255,255,255,0.96); border-radius:10px; padding:8px 10px; font-weight:700; color:#b24a77; cursor:pointer; border:1px solid rgba(178,74,119,0.08); box-shadow:0 8px 30px rgba(200,60,110,0.06); }
 
-    .footer{ margin-top:10px; font-size:13px; color:var(--muted); text-align:left; }
-
-    /* music panel */
-    .music-panel{
+    /* -------- NO BUTTON ORBIT (revolves around whole viewport) --------
+       - The "No" element visually orbits the viewport on a circular path.
+       - pointer-events:none makes it impossible to touch/click.
+       - We keep tabindex off and aria-hidden true so assistive tech won't focus it.
+       - CSS animation uses transform rotate on a wrapper; the button is placed at top of the orbit path.
+    */
+    .orbit {
       position:fixed;
-      right:14px;
-      bottom:14px;
-      width:var(--panel-width);
-      max-width:92%;
-      background:linear-gradient(180deg, rgba(255,255,255,0.98), #fff7fb);
-      border-radius:14px;
-      padding:12px;
-      box-shadow:0 18px 50px rgba(200,60,110,0.12);
-      z-index:10000;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      align-items:stretch;
-      color:#7b3a5a;
+      left:50%;
+      top:50%;
+      width:0;
+      height:0;
+      transform:translate(-50%, -50%);
+      z-index:15000;
+      pointer-events:none; /* prevent any touch/hover/click from reaching the button visually */
     }
-    .music-header{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
-    .music-title{ font-weight:700; font-size:14px; color:#b24a77; text-align:left; }
-    .music-controls{ display:flex; gap:8px; justify-content:center; align-items:center; }
-    .control-btn{ background:transparent; border:1px solid rgba(178,74,119,0.12); padding:8px 10px; border-radius:8px; color:#b24a77; cursor:pointer; font-size:14px; }
-    .control-btn.playing{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:white; border:0; box-shadow:0 8px 20px rgba(255,120,160,0.12); }
-    .track-list{ display:flex; flex-direction:column; gap:6px; max-height:160px; overflow:auto; padding-right:6px; }
-    .track-item{ padding:8px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:13px; cursor:pointer; background:transparent; border:1px solid transparent; }
-    .track-item.active{ background:linear-gradient(90deg,#fff0f4,#fff7f9); border:1px solid rgba(178,74,119,0.08); }
-    .small{ font-size:12px; color:#9d6a80; }
-
-    /* modal (for full image view) */
-    .modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(20,10,20,0.55);
-      z-index:20000;
-      padding:18px;
-      box-sizing:border-box;
+    /* the rotating ring (invisible) */
+    .orbit .ring {
+      position:relative;
+      width: calc(var(--radius-large) * 2);
+      height: calc(var(--radius-large) * 2);
+      margin-left: calc(-1 * var(--radius-large));
+      margin-top: calc(-1 * var(--radius-large));
+      transform-origin: center center;
+      animation: spin linear infinite;
+      animation-duration: var(--orbit-speed);
+      will-change: transform;
     }
-    .modal .imgwrap{
-      width:100%;
-      max-width:1100px;
-      max-height:92vh;
-      background:#fff;
-      border-radius:12px;
-      overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .modal img{
-      width:100%;
-      height:100%;
-      object-fit:contain; /* show entire image inside modal */
-      display:block;
-      background:#fff;
-    }
-    .modal .close{
+    /* top-positioned No button on the ring: it will travel around as the ring rotates */
+    .orbit .no {
       position:absolute;
-      right:18px;
-      top:18px;
-      background:rgba(255,255,255,0.96);
-      border-radius:10px;
-      padding:8px 10px;
-      font-weight:700;
-      color:#b24a77;
-      cursor:pointer;
-      border:1px solid rgba(178,74,119,0.08);
-      box-shadow:0 8px 30px rgba(200,60,110,0.06);
+      left:50%;
+      top:0%;
+      transform: translate(-50%, -50%); /* center the button on the orbit point */
+      width: var(--no-size);
+      height: var(--no-size);
+      border-radius:999px;
+      background:linear-gradient(135deg,#fff7fb,#fff0f4);
+      color:#b44a78;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:16px;
+      box-shadow:0 12px 34px rgba(200,60,110,0.10);
+      user-select:none;
+      pointer-events:none; /* critical: makes it impossible to touch */
+      -webkit-user-select:none;
+      backface-visibility:hidden;
+    }
+    /* subtle scaling/tilt while orbiting to feel lively */
+    .orbit .no::after{
+      content:'';
+      position:absolute; inset:0; border-radius:999px; mix-blend-mode:soft-light; opacity:.06;
     }
 
-    /* responsiveness */
+    @keyframes spin{
+      0%{ transform: rotate(0deg) translateZ(0); }
+      100%{ transform: rotate(360deg) translateZ(0); }
+    }
+
+    /* Add a second slow counter-oscillation so the orbit is never perfectly circular */
+    .orbit .ring { animation-name: spin; }
+    .orbit .ring::before{
+      content:'';
+      position:absolute;
+      left:50%; top:50%;
+      width:calc(var(--radius-large) * 2.6);
+      height:calc(var(--radius-large) * 2.6);
+      transform:translate(-50%,-50%) rotate(0deg);
+      border-radius:50%;
+      opacity:0;
+      /* purely decorative; could animate for subtle breathing */
+      animation: breathe 8s ease-in-out infinite;
+    }
+    @keyframes breathe{
+      0%{ transform:translate(-50%,-50%) scale(1); }
+      50%{ transform:translate(-50%,-50%) scale(1.02); }
+      100%{ transform:translate(-50%,-50%) scale(1); }
+    }
+
+    /* responsive tweaks */
     @media (max-width:1000px){
       .card{ grid-template-columns: 1fr; padding:12px; }
       .photo{ height:55vh; }
-      .side{ order:2; }
     }
     @media (max-width:480px){
+      :root{ --no-size:72px; --orbit-speed:10s; }
       .photo{ height:46vh; border-radius:10px; }
-      .music-panel{ width:92%; right:6px; left:6px; }
-      .btn-no{ min-width:100px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card" id="card">
-      <!-- LEFT: big photo -->
+      <!-- LEFT: Big photo -->
       <div class="photo" id="photo">
         <img id="usPhoto" src="us.jpg" alt="Us together" />
         <button class="view-full" id="viewFullBtn" aria-label="View full photo">View full</button>
@@ -258,7 +224,7 @@
           <p class="lead">Will you be my Valentine?</p>
         </div>
 
-        <div class="countdown" aria-live="polite" id="countdown">
+        <div class="countdown" id="countdown" aria-live="polite">
           <div class="time-box"><div class="num" id="days">--</div><div class="label">Days</div></div>
           <div class="time-box"><div class="num" id="hours">--</div><div class="label">Hours</div></div>
           <div class="time-box"><div class="num" id="mins">--</div><div class="label">Minutes</div></div>
@@ -266,8 +232,10 @@
         </div>
 
         <div class="actions" id="actions">
-          <button class="btn btn-yes" id="yesBtn">Yes 💕</button>
-          <button class="btn btn-no" id="noBtn" aria-label="No button">No 🙃</button>
+          <button id="yesBtn" class="btn btn-yes">Yes 💕</button>
+          <!-- NO is now visual only and untouchable -->
+          <!-- aria-hidden true and no tabindex so accessibility won't focus it -->
+          <div id="noVisual" class="btn-no" aria-hidden="true" style="display:none;">No 🙃</div>
         </div>
 
         <div class="secret" id="secret">
@@ -277,7 +245,7 @@ Congrats… you’re officially stuck with me forever 🥰✨
 
 You’re not just my boyfriend — you’re my safe place, my favorite person, my 3 a.m. thought, and the smile I didn’t know I needed every day. I love you tons :)
           </p>
-          <p style="margin-top:6px;font-weight:700;text-align:right;">— Neha 💘</p>
+          <p style="text-align:right;font-weight:700;margin-top:8px;">— Neha 💘</p>
 
           <div id="celebrateText" class="celebrate-text">WOOHOOOO 🎉</div>
         </div>
@@ -289,56 +257,29 @@ You’re not just my boyfriend — you’re my safe place, my favorite person, m
 
   <!-- Full-image modal -->
   <div class="modal" id="modal">
-    <div class="imgwrap">
-      <img id="modalImg" src="us.jpg" alt="Full view of us" />
-    </div>
+    <div class="imgwrap"><img id="modalImg" src="us.jpg" alt="Full view of us" /></div>
     <button class="close" id="modalClose">Close</button>
   </div>
 
-  <!-- Two audio elements for crossfade -->
+  <!-- Orbit visual (revolving around whole viewport). The inner .no element is pointer-events:none -->
+  <div class="orbit" id="orbit" aria-hidden="true">
+    <div class="ring" id="ring">
+      <div class="no" id="noOrbitLabel">No 🙃</div>
+    </div>
+  </div>
+
+  <!-- two hidden audio elements (only two songs, no visible dashboard) -->
   <audio id="audioA" preload="auto" playsinline webkit-playsinline crossorigin="anonymous"></audio>
   <audio id="audioB" preload="auto" playsinline webkit-playsinline crossorigin="anonymous"></audio>
 
-  <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
-
-  <!-- Music panel -->
-  <div class="music-panel" id="musicPanel" role="region" aria-label="Music player">
-    <div class="music-header">
-      <div>
-        <div class="music-title">Valentine's Playlist</div>
-        <div class="small" id="nowPlaying">—</div>
-      </div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <button class="control-btn" id="prevBtn" title="Previous">⟵</button>
-        <button class="control-btn" id="playPauseBtn" title="Play/Pause">Play</button>
-        <button class="control-btn" id="nextBtn" title="Next">⟶</button>
-      </div>
-    </div>
-
-    <div class="music-controls" style="justify-content:space-between; gap:10px;">
-      <div style="flex:1;">
-        <div class="small">Crossfade</div>
-        <input id="crossfadeRange" type="range" min="0" max="4000" step="250" value="1400" />
-      </div>
-      <div style="width:90px;">
-        <div class="small">Volume</div>
-        <div class="vol-row">
-          <input id="volRange" type="range" min="0" max="1" step="0.05" value="0.9" />
-        </div>
-      </div>
-    </div>
-
-    <div class="track-list" id="trackList" aria-label="Playlist"></div>
-
-    <div style="display:flex; gap:8px; margin-top:6px; align-items:center;">
-      <button id="autoplayToggle" class="control-btn">Auto Queue: ON</button>
-      <button id="openHint" class="control-btn">Tap to Play</button>
-    </div>
-
-    <div id="openMessage" class="open-message" aria-live="polite" hidden>
-      🎵 You hit Play — yay! You made my day 💖
-    </div>
+  <!-- tap overlay for iPhone to unlock audio & ensure image displays -->
+  <div class="tap-overlay" id="tapOverlay" role="dialog" aria-modal="true" aria-label="Tap to play">
+    <div style="font-weight:800;color:#b03a6b;font-size:18px;text-align:center">Tap once to start the songs & reveal the photo</div>
+    <button id="startBtn" class="tap-btn">Play ❤</button>
+    <div class="tap-hint">iPhone requires a tap to allow audio. This also ensures the photo loads correctly.</div>
   </div>
+
+  <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
 
   <script>
     // ---------- Countdown ----------
@@ -364,278 +305,167 @@ You’re not just my boyfriend — you’re my safe place, my favorite person, m
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
-    // ---------- Playlist ----------
+    // ---------- Playlist (two songs only) ----------
     const playlist = [
       { src: 'findin_her.mp3', title: 'Findin Her' },
       { src: 'pehle_bhi_main.mp3', title: 'Pehle Bhi Main' }
     ];
-
-    // Crossfade players
     const audioA = document.getElementById('audioA');
     const audioB = document.getElementById('audioB');
     let active = audioA, standby = audioB;
-    let activeIndex = 0;
-    let isPlaying = false, autoplayQueue = true;
+    let activeIndex = 0, isPlaying = false, autoplayQueue = true;
 
-    // UI refs
-    const nowPlaying = document.getElementById('nowPlaying');
-    const trackListEl = document.getElementById('trackList');
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const volRange = document.getElementById('volRange');
-    const crossfadeRange = document.getElementById('crossfadeRange');
-    const autoplayToggle = document.getElementById('autoplayToggle');
-    const openHint = document.getElementById('openHint');
-    const openMessage = document.getElementById('openMessage');
+    function safeSetVol(el, v){ try{ el.volume = Math.max(0, Math.min(1, v)); }catch(e){} }
+    function loadTo(el, index){ el.src = playlist[index].src; el.load(); }
 
-    function renderTrackList(){
-      trackListEl.innerHTML = '';
-      playlist.forEach((t,i)=>{
-        const item = document.createElement('div');
-        item.className = 'track-item' + (i === activeIndex ? ' active' : '');
-        item.innerHTML = `<div>${i+1}. ${t.title}</div><div class="small">${i === activeIndex && isPlaying ? 'Playing' : ''}</div>`;
-        item.addEventListener('click', ()=> { queueAndPlay(i); });
-        trackListEl.appendChild(item);
-      });
-      nowPlaying.textContent = playlist[activeIndex].title;
-    }
-
-    function setVolume(v){
-      try { active.volume = v; standby.volume = 0; } catch(e){}
-    }
-    volRange.addEventListener('input', ()=> { const v = parseFloat(volRange.value); setVolume(v); });
-
-    function loadTo(elem, index){
-      elem.src = playlist[index].src;
-      elem.load();
-    }
-
-    function crossfadeTo(index, fadeMs = 1400){
+    function crossfadeTo(index, fadeMs = 1200){
       if (index < 0 || index >= playlist.length) return;
       loadTo(standby, index);
       standby.currentTime = 0;
-      standby.volume = 0;
-      const targetVol = parseFloat(volRange.value || 0.9);
+      safeSetVol(standby, 0);
+      const targetVol = 0.9;
       const stepMs = 60;
-      const steps = Math.max(1, Math.round(fadeMs / stepMs));
-      let curStep = 0;
+      const steps = Math.max(1, Math.round(fadeMs/stepMs));
+      let cur = 0;
       const p = standby.play();
       if (p && p.catch) p.catch(()=>{});
-      const fadeTimer = setInterval(()=> {
-        curStep++;
-        const t = curStep / steps;
-        const standbyVol = Math.min(targetVol, t * targetVol);
-        const activeVol = Math.max(0, (1 - t) * targetVol);
-        try { standby.volume = standbyVol; } catch(e){}
-        try { active.volume = activeVol; } catch(e){}
-        if (curStep >= steps) {
-          clearInterval(fadeTimer);
-          try { active.pause(); } catch(e){}
+      const timer = setInterval(()=>{
+        cur++;
+        const t = cur/steps;
+        safeSetVol(standby, Math.min(targetVol, t*targetVol));
+        safeSetVol(active, Math.max(0, (1-t)*targetVol));
+        if (cur >= steps){
+          clearInterval(timer);
+          try{ active.pause(); }catch(e){}
           const tmp = active; active = standby; standby = tmp;
-          activeIndex = index;
-          isPlaying = true;
-          renderTrackList();
+          activeIndex = index; isPlaying = true;
           active.onended = ()=> {
-            if (autoplayQueue) {
+            if (autoplayQueue){
               const next = (activeIndex + 1) % playlist.length;
-              crossfadeTo(next, parseInt(crossfadeRange.value, 10));
-            } else {
-              isPlaying = false;
-              playPauseBtn.textContent = 'Play';
-            }
+              crossfadeTo(next, 1200);
+            } else { isPlaying = false; }
           };
         }
       }, stepMs);
     }
 
-    function queueAndPlay(index){
-      if (index === activeIndex && !isPlaying){ play(); return; }
-      const fadeMs = parseInt(crossfadeRange.value || 1400, 10);
-      crossfadeTo(index, fadeMs);
-      playPauseBtn.textContent = 'Pause';
-    }
-
-    function play(){
-      if (!active.src) loadTo(active, activeIndex);
-      const p = active.play();
-      if (p && p.catch) p.catch(()=>{});
-      isPlaying = true;
-      playPauseBtn.textContent = 'Pause';
-    }
-    function pause(){
-      try { active.pause(); } catch(e){}
-      isPlaying = false;
-      playPauseBtn.textContent = 'Play';
-    }
-
-    playPauseBtn.addEventListener('click', ()=> {
-      if (!isPlaying) {
-        if (!active.src) loadTo(active, activeIndex);
-        const p = active.play();
-        if (p && p.catch) p.catch(()=>{});
-        isPlaying = true;
-        playPauseBtn.textContent = 'Pause';
-      } else pause();
-    });
-
-    prevBtn.addEventListener('click', ()=> { const prev = (activeIndex - 1 + playlist.length) % playlist.length; queueAndPlay(prev); });
-    nextBtn.addEventListener('click', ()=> { const nxt = (activeIndex + 1) % playlist.length; queueAndPlay(nxt); });
-
-    autoplayToggle.addEventListener('click', ()=> {
-      autoplayQueue = !autoplayQueue;
-      autoplayToggle.textContent = 'Auto Queue: ' + (autoplayQueue ? 'ON' : 'OFF');
-    });
-
-    openHint.addEventListener('click', ()=> {
+    // Start playback inside a user gesture (iOS friendly)
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    async function startPlaybackGesture(){
       try {
-        if (!active.src) loadTo(active, activeIndex);
-        active.play().then(()=> {
-          isPlaying = true;
-          playPauseBtn.textContent = 'Pause';
-        }).catch(()=> {});
-      } catch(e){}
-      showOpenMessage("🎵 You hit Play — yay! You made my day 💖");
+        if (!audioCtx && AudioCtx) audioCtx = new AudioCtx();
+        if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume();
+      } catch(e){ console.warn('AudioContext resume failed', e); }
+      try {
+        loadTo(active, 0);
+        active.currentTime = 0;
+        await active.play();
+        safeSetVol(active, 0.9);
+        standby.pause();
+        isPlaying = true;
+        activeIndex = 0;
+        active.onended = ()=> {
+          const next = (activeIndex + 1) % playlist.length;
+          crossfadeTo(next, 1200);
+        };
+      } catch (err){
+        console.warn('Playback start error', err);
+      }
+    }
+
+    // ---------- Orbit visual setup ----------
+    // Place the orbit ring size based on CSS variable (--radius-large). We slightly randomize speed and direction on load for variety.
+    (function initOrbit(){
+      const ring = document.getElementById('ring');
+      const orbit = document.getElementById('orbit');
+      // randomize speed and direction a bit
+      const base = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--orbit-speed')) || 12;
+      const rand = (Math.random()*6 - 3); // -3..3 seconds
+      const direction = Math.random() < 0.5 ? 1 : -1;
+      ring.style.animationDuration = (Math.max(6, base + rand) * (direction>0?1:1)) + 's';
+      if (direction < 0) ring.style.animationDirection = 'reverse';
+      // make the visual no replace the old inline noVisual placeholder (if present)
+      const noVisual = document.getElementById('noVisual');
+      if (noVisual) {
+        noVisual.style.display = 'none';
+      }
+      // ensure the ring is responsive to viewport resize (CSS handles this)
+    })();
+
+    // ---------- Tap overlay (iPhone) ----------
+    const tapOverlay = document.getElementById('tapOverlay');
+    const startBtn = document.getElementById('startBtn');
+    const usPhoto = document.getElementById('usPhoto');
+
+    startBtn.addEventListener('click', async ()=>{
+      // ensure image is visible (it's in DOM already)
+      usPhoto.style.opacity = 1;
+      await startPlaybackGesture();
+      tapOverlay.style.display = 'none';
+      try{ if (navigator.vibrate) navigator.vibrate(40); } catch(e){}
     });
+    window.addEventListener('load', ()=> { try{ loadTo(active,0); }catch(e){} });
 
-    function showOpenMessage(text = "🎵 You hit Play — yay! You made my day 💖"){
-      if(!openMessage) return;
-      openMessage.textContent = text;
-      openMessage.hidden = false;
-      requestAnimationFrame(()=> openMessage.classList.add('show'));
-      try { if (navigator.vibrate) navigator.vibrate(40); } catch(e){}
-      setTimeout(()=>{ openMessage.classList.remove('show'); setTimeout(()=> openMessage.hidden = true, 360); }, 3800);
-    }
-
-    window.addEventListener('load', ()=> {
-      renderTrackList();
-      loadTo(active, activeIndex);
-      const tryAuto = active.play();
-      if (tryAuto && tryAuto.catch) tryAuto.catch(()=> { playPauseBtn.textContent = 'Play'; });
-      else { isPlaying = true; playPauseBtn.textContent = 'Pause'; }
-      setTimeout(()=> { const initialVol = parseFloat(volRange.value); try { active.volume = initialVol; standby.volume = 0; } catch(e){} }, 150);
-    });
-
-    volRange.addEventListener('input', ()=> {
-      const v = parseFloat(volRange.value);
-      try { active.volume = v; } catch(e){}
-    });
-
-    // ---------- Evasive NO button ----------
-    const noBtn = document.getElementById('noBtn');
-    const actions = document.getElementById('actions');
-    let noActive = true, noInterval = null;
-    function placeNoAt(xPct = 68, yPct = 18){
-      const containerRect = actions.getBoundingClientRect();
-      const w = containerRect.width;
-      const h = containerRect.height;
-      const left = Math.max(6, Math.min(w - noBtn.offsetWidth - 6, Math.round(w * xPct / 100)));
-      const top = Math.max(0, Math.min(h - noBtn.offsetHeight, Math.round(h * yPct / 100)));
-      noBtn.style.left = left + 'px';
-      noBtn.style.top = top + 'px';
-    }
-    function jumpNoRandom(big=false){
-      if (!noActive) return;
-      const xPct = Math.random() * (big ? 95 : 85);
-      const yPct = Math.random() * (big ? 85 : 70);
-      noBtn.style.transition = 'left 0.26s ease, top 0.26s ease';
-      placeNoAt(xPct, yPct);
-      setTimeout(()=> noBtn.style.transition = '', 280);
-    }
-    function startNoJitter(){
-      if (noInterval) clearInterval(noInterval);
-      noInterval = setInterval(()=> {
-        if (!noActive) return;
-        const dx = (Math.random()*18 - 9);
-        const dy = (Math.random()*12 - 6);
-        noBtn.style.transform = `translate(${dx}px, ${dy}px)`;
-      }, 400);
-    }
-    function setupNoEvasion(){
-      const evade = (e)=>{ e.preventDefault(); e.stopPropagation(); jumpNoRandom(true); };
-      noBtn.addEventListener('mouseenter', evade);
-      noBtn.addEventListener('pointerenter', evade);
-      noBtn.addEventListener('touchstart', (ev)=> { evade(ev); }, {passive:false});
-      noBtn.addEventListener('click', (ev)=> { ev.preventDefault(); ev.stopPropagation(); jumpNoRandom(true); return false; });
-    }
-    function initNoButton(){
-      placeNoAt();
-      startNoJitter();
-      setupNoEvasion();
-      setInterval(()=> { if (!noActive) return; if (Math.random() > 0.45) jumpNoRandom(false); }, 720);
-    }
-    window.addEventListener('load', ()=> { setTimeout(initNoButton, 120); setTimeout(initNoButton, 600); });
-
-    // ---------- YES button: reveal secret, textual celebration, hearts ----------
+    // ---------- YES button behavior ----------
     const yesBtn = document.getElementById('yesBtn');
     const secret = document.getElementById('secret');
-    const heartsLayer = document.getElementById('heartsLayer');
     const celebrateText = document.getElementById('celebrateText');
+    const heartsLayer = document.getElementById('heartsLayer');
 
-    function stopNoBehaviorPermanently(){ noActive = false; try { noBtn.style.display = 'none'; } catch(e){} }
-    function doVibrate(){ try{ if (navigator.vibrate) navigator.vibrate([150,60,150,60,200]); } catch(e){} }
+    function doVibrate(){ try{ if (navigator.vibrate) navigator.vibrate([150,60,150]); }catch(e){} }
+    function stopOrbitVisual(){ const orbit = document.getElementById('orbit'); if (orbit) orbit.style.display = 'none'; }
 
-    function wooShow(){
+    function showCelebrate(){
       if (celebrateText){
         celebrateText.style.display = 'block';
         celebrateText.style.animation = 'none';
-        requestAnimationFrame(()=> { celebrateText.style.animation = ''; });
+        requestAnimationFrame(()=> celebrateText.style.animation = '');
       }
     }
 
-    function startFloatingHearts(){
+    function spawnHeartsSpell(){
       const message = ['I',' ','L','O','V','E',' ','Y','O','U',' ','P','R','A','T','H','A','M'];
       const emojiPool = ['💖','💘','💕','💞'];
-      let idx = 0;
-      function spawnHeartForChar(ch, index){
+      let i=0;
+      const spawn = ()=>{
+        if (i >= message.length) return;
+        const ch = message[i];
         const heart = document.createElement('div');
         heart.className = 'heart';
-        if (ch === ' '){
-          const emoji = emojiPool[Math.floor(Math.random()*emojiPool.length)];
-          heart.textContent = emoji;
-          heart.classList.add('emoji');
-        } else {
-          if (Math.random() < 0.18) {
-            const emoji = emojiPool[Math.floor(Math.random()*emojiPool.length)];
-            heart.textContent = ch + emoji;
-          } else heart.textContent = ch;
-        }
-        const startLeft = Math.random() * 90 + 5;
-        const px = (startLeft / 100) * window.innerWidth;
-        const startTop = window.innerHeight + 40 + Math.random()*40;
-        heart.style.left = px + 'px';
-        heart.style.top = startTop + 'px';
-        const dx = (Math.random()*220 - 110) + (index - message.length/2) * 12;
-        heart.style.setProperty('--dx', dx + 'px');
-        heart.style.setProperty('--sx', '0px');
-        const dur = 5400 + Math.round(Math.random()*2200);
-        heart.style.animationDuration = dur + 'ms';
-        heart.style.opacity = 0;
-        heartsLayer.appendChild(heart);
-        setTimeout(()=> { heart.remove(); }, dur + 250);
-      }
-      const seqInterval = 360;
-      const sequenceTimer = setInterval(()=> {
-        if (idx >= message.length){
-          clearInterval(sequenceTimer);
-          for (let i=0;i<8;i++){ setTimeout(()=> spawnHeartForChar(' ', i+100), i*180); }
-          return;
-        }
-        spawnHeartForChar(message[idx], idx);
-        idx++;
-      }, seqInterval);
+        heart.textContent = ch === ' ' ? emojiPool[Math.floor(Math.random()*emojiPool.length)] : (Math.random()<0.18 ? ch + emojiPool[Math.floor(Math.random()*emojiPool.length)] : ch);
+        heart.style.position = 'fixed';
+        heart.style.left = (5 + Math.random()*90) + '%';
+        heart.style.bottom = '-40px';
+        heart.style.padding = '10px';
+        heart.style.borderRadius = '28px';
+        heart.style.background = 'linear-gradient(135deg,#ff7aa5,#ffd0e0)';
+        heart.style.color = 'white';
+        heart.style.fontWeight = '700';
+        heart.style.zIndex = 12000;
+        heart.style.fontSize = '18px';
+        heart.style.transition = 'transform 5s linear, opacity 5s linear';
+        document.body.appendChild(heart);
+        requestAnimationFrame(()=> {
+          heart.style.transform = 'translateY(-120vh) rotate(' + (Math.random()*60-30) + 'deg)';
+          heart.style.opacity = '0';
+        });
+        setTimeout(()=> heart.remove(), 5200);
+        i++;
+        setTimeout(spawn, 260);
+      };
+      spawn();
     }
 
-    yesBtn.addEventListener('click', (e)=>{
+    yesBtn.addEventListener('click', async ()=>{
       doVibrate();
-      stopNoBehaviorPermanently();
+      stopOrbitVisual();         // hide the orbit visual so it doesn't keep spinning
       secret.style.display = 'block';
-      // show textual celebration instead of GIF
-      wooShow();
-      try { active.play().catch(()=>{}); } catch(e){}
-      startFloatingHearts();
-      for (let i = 0; i < 6; i++){ setTimeout(()=> startFloatingHearts(), 500 + i*300); }
-      setTimeout(()=> { secret.scrollIntoView({behavior:'smooth', block:'center'}); }, 260);
+      showCelebrate();
+      try { await active.play().catch(()=>{}); } catch(e){}
+      spawnHeartsSpell();
+      for (let k=0;k<5;k++) setTimeout(spawnHeartsSpell, 420 + k*320);
+      setTimeout(()=> secret.scrollIntoView({behavior:'smooth', block:'center'}), 260);
     });
 
     // ---------- Full image modal ----------
@@ -643,24 +473,20 @@ You’re not just my boyfriend — you’re my safe place, my favorite person, m
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modalImg');
     const modalClose = document.getElementById('modalClose');
-    viewFullBtn.addEventListener('click', ()=> {
+
+    viewFullBtn.addEventListener('click', ()=>{
       modal.style.display = 'flex';
-      // ensure modal image is loaded and object-fit:contain will show full image
-      modalImg.src = document.getElementById('usPhoto').src || 'us.jpg';
-      // unlock pinch/zoom behavior is native on iOS in Safari when image is in its own element
-      try { if (navigator.vibrate) navigator.vibrate(20); } catch(e){}
+      modalImg.src = usPhoto.src || 'us.jpg';
+      try{ if (navigator.vibrate) navigator.vibrate(20); } catch(e){}
     });
     modalClose.addEventListener('click', ()=> modal.style.display = 'none');
     modal.addEventListener('click', (e)=> { if (e.target === modal) modal.style.display = 'none'; });
 
-    // ---------- Minor polish ----------
-    document.getElementById('usPhoto').addEventListener('contextmenu', (e)=> e.preventDefault());
-    noBtn.addEventListener('focus', ()=> { noBtn.blur(); jumpNoRandom(true); });
-    yesBtn.addEventListener('keydown', (e)=> { if (e.key === 'Enter' || e.key === ' ') yesBtn.click(); });
+    // prevent context menu on photo
+    usPhoto.addEventListener('contextmenu', e=> e.preventDefault());
 
-    // expose renderTrackList for initial render
-    renderTrackList();
-    console.log('Large-photo layout loaded. Click "View full" to see the entire picture without cropping.');
+    // small assist: expose helpful console message
+    console.log('Page ready — NO visually orbits the viewport and cannot be touched (pointer-events:none). Two-song player will start after the overlay tap.');
   </script>
 </body>
 </html>
